@@ -1,0 +1,5 @@
+include ':mediapicker'
+include ':medialoader'
+include ':mediaglide'
+include ':app'
+rootProject.name = "SlcMp"
