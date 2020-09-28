@@ -5,18 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.slc.mp.model.ExtensionMap;
-import android.slc.mp.model.SlcMpOperateModel;
-import android.slc.mp.model.SlcMpResultModel;
+import android.slc.medialoader.utils.MediaLoaderUriUtils;
 import android.slc.mp.po.i.IBaseItem;
 import android.slc.mp.utils.SlcMpFilePickerUtils;
 
+import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 
 import java.util.List;
 
@@ -116,32 +115,12 @@ public class SlcMp {
     }
 
     /**
-     * 移除选择结果订阅
-     * 在创建选择器时添加订阅(@Builder.observeForever)
-     *
-     * @param observer
-     */
-    public void removeObserver(@NonNull final Observer<List<IBaseItem>> observer) {
-        SlcMpResultModel.getInstance().removeObserver(observer);
-    }
-
-    /**
-     * 移除选择结果订阅 ,根据LifecycleOwner
-     * 在创建选择器时添加订阅(@Builder.observeForever)
-     *
-     * @param owner
-     */
-    public void removeObservers(@NonNull final LifecycleOwner owner) {
-        SlcMpResultModel.getInstance().removeObservers(owner);
-    }
-
-    /**
      * 获取一个选择器构建工具，根据activity
      *
      * @param activity
      * @return
      */
-    public Builder with(Activity activity) {
+    public Builder with(ComponentActivity activity) {
         return new BuilderOfActivity(activity);
     }
 
@@ -149,12 +128,12 @@ public class SlcMp {
      * 获取一个选择器构建工具，根据fragment
      * 该方法无效，未进行正确实现
      *
-     * @param activity
+     * @param fragment
      * @return
      */
     @Deprecated
-    public Builder with(Fragment activity) {
-        return new BuilderOfFragment(activity);
+    public Builder with(Fragment fragment) {
+        return new BuilderOfFragment(fragment);
     }
 
     /**
@@ -181,48 +160,41 @@ public class SlcMp {
     }
 
     /**
-     * 裁剪
+     * 裁剪照片
      *
      * @param context
+     * @param activityResultCaller
+     * @param photoUri
+     * @param activityResultCallback
      */
-    public void cutOutPhoto(Context context, @NonNull Observer<ExtensionMap> observer, String srcPath) {
-        cutOutPhoto(context, null, srcPath, SlcMpFilePickerUtils.newCutPhotoPhotoSavePath());
+    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
+        SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, MediaLoaderUriUtils.image2UriByInsert(context), activityResultCallback);
     }
 
     /**
-     * 裁剪
+     * 裁剪照片
      *
      * @param context
+     * @param activityResultCaller
+     * @param photoUri
+     * @param activityResultCallback
      */
-    public void cutOutPhoto(Context context, @NonNull Observer<ExtensionMap> observer, String srcPath, String cutOutPhotoPath) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Key.KEY_TAKE_CAT_OUT_PHOTO_PATH, cutOutPhotoPath);
-        cutOutPhoto(context, null, observer, srcPath, bundle);
+    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
+        SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, outPutUri, activityResultCallback);
     }
 
     /**
-     * 裁剪
+     * 裁剪照片
      *
      * @param context
+     * @param activityResultCaller
+     * @param photoUri
+     * @param activityResultCallback
      */
-    public void cutOutPhoto(Context context, LifecycleOwner owner, @NonNull Observer<ExtensionMap> observer, String srcPath) {
-        cutOutPhoto(context, owner, observer, srcPath, new Bundle());
+    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
+        SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, bundle, activityResultCallback);
     }
 
-    /**
-     * 裁剪
-     *
-     * @param context
-     */
-    public void cutOutPhoto(Context context, LifecycleOwner owner, @NonNull Observer<ExtensionMap> observer, String srcPath, Bundle bundle) {
-        if (owner != null) {
-            SlcMpOperateModel.getInstance().observe(owner, observer);
-        } else {
-            SlcMpOperateModel.getInstance().observeForever(observer);
-        }
-        bundle.putString(Key.KEY_TAKE_SRC_PHOTO_PATH, srcPath);
-        //SlcMpBridgingActivity.show(context, Value.VALUE_REQUEST_CODE_CUT_OUT_PHOTO_DEF, bundle);
-    }
 
     /**
      * 根据intent获取结果
@@ -244,6 +216,7 @@ public class SlcMp {
     public abstract static class Builder {
         SlcMpConfig mSlcMpConfig;
         int mRequestCode = Value.VALUE_REQUEST_CODE_MP_DEF;
+        ActivityResultCallback<List<IBaseItem>> mActivityResultCallback;
 
         public Builder() {
             SlcMp.getInstance().checkInit();
@@ -273,26 +246,8 @@ public class SlcMp {
             return this;
         }
 
-        /**
-         * 添加订阅
-         *
-         * @param owner
-         * @param observer
-         * @return
-         */
-        public Builder observe(@NonNull LifecycleOwner owner, @NonNull Observer<List<IBaseItem>> observer) {
-            SlcMpResultModel.getInstance().observe(owner, observer);
-            return this;
-        }
-
-        /**
-         * 添加订阅
-         *
-         * @param observer
-         * @return
-         */
-        public Builder observeForever(@NonNull Observer<List<IBaseItem>> observer) {
-            SlcMpResultModel.getInstance().observeForever(observer);
+        public Builder setActivityResultCallback(ActivityResultCallback<List<IBaseItem>> activityResultCallback) {
+            this.mActivityResultCallback = activityResultCallback;
             return this;
         }
 
@@ -308,9 +263,9 @@ public class SlcMp {
     }
 
     public static class BuilderOfActivity extends Builder {
-        private Activity mActivity;
+        private ComponentActivity mActivity;
 
-        public BuilderOfActivity(Activity activity) {
+        public BuilderOfActivity(ComponentActivity activity) {
             this.mActivity = activity;
         }
 
@@ -321,12 +276,26 @@ public class SlcMp {
         public void build() {
             super.build();
             if (mActivity != null) {
-                /*Intent intent = new Intent(mActivity, MpBridgeActivity.class);
-                intent.putExtra(Key.KEY_REQUEST_CODE, mRequestCode);
-                mActivity.startActivity(intent);*/
-                Intent intent = new Intent(mActivity, SlcMp.getInstance().optMpConfig().getTargetUi());
+                mActivity.registerForActivityResult(new ActivityResultContract<Bundle, List<IBaseItem>>() {
+                    @NonNull
+                    @Override
+                    public Intent createIntent(@NonNull Context context, Bundle input) {
+                        Intent intent = new Intent(context, SlcMp.getInstance().optMpConfig().getTargetUi());
+                        intent.putExtras(input);
+                        return intent;
+                    }
+
+                    @Override
+                    public List<IBaseItem> parseResult(int resultCode, @Nullable Intent intent) {
+                        if (resultCode == Activity.RESULT_OK && intent != null) {
+                            return (List<IBaseItem>) intent.getSerializableExtra(Key.KEY_RESULT_LIST);
+                        }
+                        return null;
+                    }
+                }, mActivityResultCallback).launch(SlcMp.getInstance().optMpConfig().getBundle());
+                /*Intent intent = new Intent(mActivity, SlcMp.getInstance().optMpConfig().getTargetUi());
                 intent.putExtras(SlcMp.getInstance().optMpConfig().getBundle());
-                mActivity.startActivityForResult(intent, mRequestCode);
+                mActivity.startActivityForResult(intent, mRequestCode);*/
             }
         }
     }
@@ -342,9 +311,26 @@ public class SlcMp {
         public void build() {
             super.build();
             if (mFragment != null) {
-                Intent intent = new Intent(mFragment.getContext(), SlcMp.getInstance().optMpConfig().getTargetUi());
+                mFragment.registerForActivityResult(new ActivityResultContract<Bundle, List<IBaseItem>>() {
+                    @NonNull
+                    @Override
+                    public Intent createIntent(@NonNull Context context, Bundle input) {
+                        Intent intent = new Intent(context, SlcMp.getInstance().optMpConfig().getTargetUi());
+                        intent.putExtras(input);
+                        return intent;
+                    }
+
+                    @Override
+                    public List<IBaseItem> parseResult(int resultCode, @Nullable Intent intent) {
+                        if (resultCode == Activity.RESULT_OK && intent != null) {
+                            return (List<IBaseItem>) intent.getSerializableExtra(Key.KEY_RESULT_LIST);
+                        }
+                        return null;
+                    }
+                }, mActivityResultCallback).launch(SlcMp.getInstance().optMpConfig().getBundle());
+                /*Intent intent = new Intent(mFragment.getContext(), SlcMp.getInstance().optMpConfig().getTargetUi());
                 intent.putExtras(SlcMp.getInstance().optMpConfig().getBundle());
-                mFragment.startActivityForResult(intent, mRequestCode);
+                mFragment.startActivityForResult(intent, mRequestCode);*/
             }
         }
     }
@@ -363,11 +349,6 @@ public class SlcMp {
         public static final String KEY_IS_MULTIPLE_SELECTION = "isMultipleSelection";
         public static final String KEY_IS_MULTIPLE_MEDIA_TYPE = "isMultipleMediaType";
         public static final String KEY_RESULT_LIST = "resultList";
-        public static final String KEY_REQUEST_CODE = "requestCode";
-        public static final String KEY_TAKE_PHOTO_SAVE_PATH = "takePhotoSavePath";//拍照保存路径
-        public static final String KEY_TAKE_SRC_PHOTO_PATH = "srcPhotoPath";//原图片路径
-        public static final String KEY_TAKE_CAT_OUT_PHOTO_PATH = "catOutPhotoPath";//裁剪保存路径
-        public static final String KEY_TAKE_CAT_OUT_PHOTO_PARAMETER = "catOutPhotoParameter";//裁剪照片参数
     }
 
     /**
@@ -376,8 +357,6 @@ public class SlcMp {
     public static class Value {
         private static final int VALUE_REQUEST_CODE_BASE = 67;
         public static final int VALUE_REQUEST_CODE_MP_DEF = VALUE_REQUEST_CODE_BASE + 1;//媒体选择默认请求码
-        public static final int VALUE_REQUEST_CODE_TAKE_PHOTO_DEF = VALUE_REQUEST_CODE_BASE + 2;//拍摄照片默认请求码
-        public static final int VALUE_REQUEST_CODE_CUT_OUT_PHOTO_DEF = VALUE_REQUEST_CODE_BASE + 3;//裁剪照片默认请求码
         //默认每行的个数
         public static final int VALUE_SPAN_COUNT_DEF_VALUE = 4;
         public static final int VALUE_DEF_MAX_PICKER = 9;

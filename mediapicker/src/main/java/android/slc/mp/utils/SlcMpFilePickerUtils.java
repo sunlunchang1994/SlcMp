@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,7 +17,9 @@ import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.net.UriCompat;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -39,15 +42,18 @@ public class SlcMpFilePickerUtils {
             public Intent createIntent(@NonNull Context context, Uri input) {
                 final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, input);
                 return intent;
             }
 
             @Override
             public Uri parseResult(int resultCode, @Nullable Intent intent) {
-                if (resultCode == Activity.RESULT_OK)
+                if (resultCode == Activity.RESULT_OK) {
+                    //SlcMpFilePickerUtils.notifyMediaScannerScanFile(context,MediaLoaderUriUtils.u);
+                    SlcMpFilePickerUtils.notifyMediaScannerScanFile(context, photoUri);
                     return photoUri;
-                else {
+                } else {
                     return null;
                 }
 
@@ -62,23 +68,34 @@ public class SlcMpFilePickerUtils {
     public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
         Bundle bundle = new Bundle();
         bundle.putString("crop", "true");
-        bundle.putInt("aspectX", tailorX);
-        bundle.putInt("aspectY", tailorY);
+        bundle.putInt("aspectX", 1);
+        bundle.putInt("aspectY", 1);
         bundle.putInt("outputX", tailorX);
         bundle.putInt("outputY", tailorY);
         bundle.putBoolean("scale", true);
-        bundle.putParcelable(MediaStore.EXTRA_OUTPUT, outPutUri);
+        //这里是坑
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.Q) {
+            bundle.putParcelable(MediaStore.EXTRA_OUTPUT, outPutUri);
+        } else {
+            bundle.putParcelable(MediaStore.EXTRA_OUTPUT, Uri.fromFile(MediaLoaderUriUtils.uri2File(context,outPutUri)));
+        }
+
+        bundle.putBoolean("return-data", false);
         bundle.putString("outputFormat", Bitmap.CompressFormat.PNG.toString());
         bundle.putBoolean("noFaceDetection", true);
         cutOutPhoto(context, activityResultCaller, photoUri, bundle, activityResultCallback);
     }
 
-    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
+    public static void cutOutPhoto(Context context, ActivityResultCaller
+            activityResultCaller, Uri photoUri, Bundle
+                                           bundle, ActivityResultCallback<Uri> activityResultCallback) {
         activityResultCaller.registerForActivityResult(new ActivityResultContract<Uri, Uri>() {
             @NonNull
             @Override
             public Intent createIntent(@NonNull Context context, Uri input) {
                 Intent intent = new Intent("com.android.camera.action.CROP");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 intent.setDataAndType(photoUri, context.getContentResolver().getType(input));
                 intent.putExtras(bundle);
                 return intent;
@@ -96,51 +113,6 @@ public class SlcMpFilePickerUtils {
         }, activityResultCallback).launch(photoUri);
     }
 
-    /*public static void cutOutPhoto(Activity activity, int requestCode, Uri photoUri) {
-        cutOutPhoto(activity, requestCode, photoUri, newCutPhotoPhotoSavePath());
-    }
-
-    public static void cutOutPhoto(Activity activity, int requestCode, Uri photoUri, String savePathDir) {
-        Bundle bundle = new Bundle();
-        bundle.putString("crop", "true");
-        bundle.putInt("aspectX", tailorX);
-        bundle.putInt("aspectY", tailorY);
-        bundle.putInt("outputX", tailorX);
-        bundle.putInt("outputY", tailorY);
-        bundle.putParcelable(MediaStore.EXTRA_OUTPUT, UriUtils.image2UriByInsert(activity, new File(TextUtils.isEmpty(savePathDir) ? newCutPhotoPhotoSavePath() : savePathDir)));
-        bundle.putString("outputFormat", Bitmap.CompressFormat.PNG.toString());
-        bundle.putBoolean("noFaceDetection", true);
-        cutOutPhoto(activity, requestCode, photoUri, bundle);
-    }
-
-    public static void cutOutPhoto(Activity activity, int requestCode, Uri photoUri, Bundle bundle) {
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        intent.setDataAndType(photoUri, "image/*");
-        intent.putExtras(bundle);
-        activity.startActivityForResult(intent, requestCode);
-    }*/
-
-    /**
-     * 获取一个新照片存储路径
-     * 路径获取规则为本机照片存储路径加上过根据时间戳生成的文件名
-     *
-     * @return
-     */
-    public static String newTakePhotoSavePath() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
-                + "/Camera/" + SlcMpFilePickerUtils.getFileNameByTime("IMG", "jpg");
-    }
-
-    /**
-     * 获取一个新照片存储路径
-     * 路径获取规则为本机照片存储路径加上过根据时间戳生成的文件名
-     *
-     * @return
-     */
-    public static String newCutPhotoPhotoSavePath() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath()
-                + "/Camera/" + SlcMpFilePickerUtils.getFileNameByTime("IMG", "png");
-    }
 
     /**
      * 通知扫描
@@ -148,9 +120,14 @@ public class SlcMpFilePickerUtils {
      * @param context
      * @param filePath
      */
-    public static void notifyMediaScannerScanFile(Context context, MediaScannerConnection.MediaScannerConnectionClient mediaScannerConnectionClient,
+    public static void notifyMediaScannerScanFile(Context
+                                                          context, MediaScannerConnection.MediaScannerConnectionClient mediaScannerConnectionClient,
                                                   final String... filePath) {
         MediaScannerConnection.scanFile(context, filePath, null, mediaScannerConnectionClient);
+    }
+
+    public static void notifyMediaScannerScanFile(Context context, Uri uri) {
+        context.getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
     }
 
     /**

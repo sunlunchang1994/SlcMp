@@ -41,7 +41,7 @@ ext {
     recyclerview = '+'
     lifecycleExtensions = '2.1.0'
     mpMedialoader = '0.0.9'
-    mpMedialoaderPublish = '0.0.9'
+    mpMedialoaderPublish = '0.1.1'
     mpMediapicker = '0.1.0'
     mpMediapickerPublish = '0.1.0'
     mpMediaglide = '0.0.9'

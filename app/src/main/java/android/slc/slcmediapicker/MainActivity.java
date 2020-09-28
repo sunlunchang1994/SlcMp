@@ -1,6 +1,5 @@
 package android.slc.slcmediapicker;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.slc.mp.SlcMp;
 import android.slc.mp.SlcMpConfig;
@@ -12,13 +11,10 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,9 +48,17 @@ public class MainActivity extends AppCompatActivity {
                             .loadFile(AttachmentUtils.TYPE_COMPRESSION, AttachmentUtils.TYPE_NAME_COMPRESSION, AttachmentUtils.Compression)
                             .setMaxPicker(9)
                             .build())
-                    .observe(MainActivity.this, iBaseItems -> {
-                        Glide.with(MainActivity.this).load(iBaseItems.get(0).getUri())
-                                .into((ImageView) findViewById(R.id.ivTest));
+                    .setActivityResultCallback(result -> {
+                        if (result != null) {
+                            /*Glide.with(MainActivity.this).load(result.get(0).getUri())
+                                    .into((ImageView) findViewById(R.id.ivTest));*/
+                            SlcMpFilePickerUtils.cutOutPhoto(MainActivity.this, MainActivity.this, result.get(0).getUri(), result1 -> {
+                                if (result1 != null) {
+                                    Glide.with(MainActivity.this).load(result1)
+                                            .into((ImageView) findViewById(R.id.ivTest));
+                                }
+                            });
+                        }
                     })
                     .build();
         });

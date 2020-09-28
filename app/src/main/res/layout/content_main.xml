@@ -21,7 +21,8 @@
         android:id="@+id/btnParent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
 
         <Button
             android:id="@+id/btn_look"
@@ -39,5 +40,6 @@
         android:id="@+id/ivTest"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        app:layout_constraintLeft_toRightOf="@id/btnParent" />
+        app:layout_constraintLeft_toRightOf="@id/btnParent"
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,20 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.slc.medialoader.bean.i.IFileProperty;
 import android.slc.mp.R;
-import android.slc.mp.model.SlcMpResultModel;
+import android.slc.mp.SlcMp;
+import android.slc.mp.po.SelectEvent;
+import android.slc.mp.po.i.IBaseItem;
+import android.slc.mp.ui.SlcIMpDelegate;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.collection.SparseArrayCompat;
 import androidx.fragment.app.Fragment;
-
-import android.slc.medialoader.bean.i.IFileProperty;
-import android.slc.mp.SlcMp;
-import android.slc.mp.po.SelectEvent;
-import android.slc.mp.po.i.IBaseItem;
-import android.slc.mp.ui.SlcIMpDelegate;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -359,7 +357,7 @@ public class SlcMpDelegateImp implements SlcIMpDelegate {
             //TODO 使用fragment完成
         } else {
             ArrayList<IBaseItem> selectItems = new ArrayList<>(selectItemArrayMap.values());
-            SlcMpResultModel.getInstance().setValue(selectItems);
+            //SlcMpResultModel.getInstance().setValue(selectItems);
             Intent intent = new Intent();
             intent.putExtra(SlcMp.Key.KEY_RESULT_LIST, selectItems);
             this.mActivity.setResult(Activity.RESULT_OK, intent);
