@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 if (result == null) {
                     return;
                 }
-                SlcMpFilePickerUtils.cutOutPhoto(MainActivity.this, MainActivity.this, result, result1 -> {
+                SlcMp.getInstance().cutOutPhoto(MainActivity.this, MainActivity.this, result, result1 -> {
                     if (result1 != null) {
                         Glide.with(MainActivity.this).load(result1)
                                 .into((ImageView) findViewById(R.id.ivTest));

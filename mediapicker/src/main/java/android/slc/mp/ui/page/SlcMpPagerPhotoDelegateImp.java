@@ -1,6 +1,5 @@
 package android.slc.mp.ui.page;
 
-import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -22,6 +21,7 @@ import android.slc.mp.utils.SlcMpFilePickerUtils;
 import android.slc.mp.utils.SlcMpMediaBrowseUtils;
 import android.util.Log;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.fragment.app.FragmentActivity;
 import androidx.loader.content.Loader;
@@ -129,24 +129,33 @@ public class SlcMpPagerPhotoDelegateImp extends SlcMpPagerBaseDelegateImp<IPhoto
      * 拍照
      */
     protected void takePhoto() {
-        SlcMpFilePickerUtils.takePhoto(mMediaPickerDelegate.getContext(), (ActivityResultCaller) mMediaPickerDelegate.getContext(), result -> {
-            if (result != null) {
+        SlcMpFilePickerUtils.takePhoto(mMediaPickerDelegate.getContext(), (ActivityResultCaller) mMediaPickerDelegate.getContext(), new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri result) {
+                loadResult(result);
+            }
+
+            /**
+             * 加载拍照的结果
+             * @param result
+             */
+            private void loadResult(Uri result) {
                 Cursor cursor = mMediaPickerDelegate.getContext().getContentResolver().query(result, new String[]{}, null, new String[]{}, null);
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
-                        String folderId = cursor.getString(cursor.getColumnIndexOrThrow(BUCKET_ID));
-                        String folderName = cursor.getString(cursor.getColumnIndexOrThrow(BUCKET_DISPLAY_NAME));
                         int imageId = cursor.getInt(cursor.getColumnIndexOrThrow(_ID));
                         String name = cursor.getString(cursor.getColumnIndexOrThrow(DISPLAY_NAME));
                         long size = cursor.getLong(cursor.getColumnIndexOrThrow(SIZE));
-                        String path = cursor.getString(cursor.getColumnIndexOrThrow(DATA));
+                        String filePath = cursor.getString(cursor.getColumnIndexOrThrow(DATA));
                         long modified = cursor.getLong(cursor.getColumnIndexOrThrow(DATE_MODIFIED));
                         int width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH));
                         int height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT));
-                        PhotoItem item = new PhotoItem(imageId, name, path, size, modified, width, height);
+                        PhotoItem item = new PhotoItem(imageId, name, filePath, size, modified, width, height);
                         item.setUri(MediaLoaderUriUtils.id2Uri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageId));
                         item.setMediaTypeTag(getMediaType());
-                        item.setExtension(MediaLoaderFileUtils.getFileExtension(path));
+                        item.setExtension(MediaLoaderFileUtils.getFileExtension(filePath));
+                        String folderId = cursor.getString(cursor.getColumnIndexOrThrow(BUCKET_ID));
+                        String folderName = cursor.getString(cursor.getColumnIndexOrThrow(BUCKET_DISPLAY_NAME));
 
                         PhotoFolder folder = new PhotoFolder();
                         folder.setId(folderId);
@@ -154,7 +163,7 @@ public class SlcMpPagerPhotoDelegateImp extends SlcMpPagerBaseDelegateImp<IPhoto
                         if (mResult.getFolders().contains(folder)) {
                             mResult.getFolders().get(mResult.getFolders().indexOf(folder)).getItems().add(0, item);
                         } else {
-                            folder.setCover(path);
+                            folder.setCover(filePath);
                             folder.setCoverUri(item.getUri());
                             folder.addItem(item);
                             mResult.getFolders().add(folder);

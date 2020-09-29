@@ -37,7 +37,7 @@ dependencies {
     implementation project(path: ':medialoader')
 
     //glide
-    api 'com.github.bumptech.glide:glide:4.10.0'
-    api 'jp.wasabeef:glide-transformations:3.3.+'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
+    api 'com.github.bumptech.glide:glide:4.11.0'
+    api 'jp.wasabeef:glide-transformations:3.3.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 }

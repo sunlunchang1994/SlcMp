@@ -167,7 +167,7 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
+    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, MediaLoaderUriUtils.image2UriByInsert(context), activityResultCallback);
     }
 
@@ -179,7 +179,7 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
+    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, outPutUri, activityResultCallback);
     }
 
@@ -191,7 +191,7 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public static void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
+    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, bundle, activityResultCallback);
     }
 

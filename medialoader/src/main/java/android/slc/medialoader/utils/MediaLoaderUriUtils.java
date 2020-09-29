@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -64,8 +65,11 @@ public class MediaLoaderUriUtils {
      */
     public static Uri file2Uri(Context context, @NonNull final File file) {
         Uri fileUri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.Q) {//兼容10.0及以上的写法
-            Cursor cursor = context.getContentResolver().query(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL), new String[]{}, MediaStore.Images.Media.DISPLAY_NAME + "= ?",
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {//兼容10.0及以上的写法
+            Cursor cursor = context.getContentResolver().query(
+                    MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
+                    new String[]{},
+                    MediaStore.Images.Media.DISPLAY_NAME + "= ?",
                     new String[]{file.getAbsolutePath()},
                     null);
             fileUri = null;
@@ -121,7 +125,7 @@ public class MediaLoaderUriUtils {
 
     public static Uri file2UriByInsert(Context context, @NonNull final Uri mediaUri, @NonNull final ContentValues contentValues) {
         Uri fileUri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.Q) {//兼容10.0及以上的写法
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {//兼容10.0及以上的写法
             fileUri = context.getContentResolver().insert(mediaUri, contentValues);
         } else {
             String relativePath = contentValues.getAsString("relative_path");
@@ -135,6 +139,33 @@ public class MediaLoaderUriUtils {
             }
         }
         return fileUri;
+    }
+
+    /**
+     * 通知扫描
+     *
+     * @param context
+     * @param filePath
+     */
+    public static void notifyMediaScannerScanFile(Context context,
+                                                  MediaScannerConnection.OnScanCompletedListener onScanCompletedListener,
+                                                  final String... filePath) {
+        MediaScannerConnection.scanFile(context, filePath, null, onScanCompletedListener);
+    }
+
+    /**
+     * 通知扫描
+     *
+     * @param context
+     */
+    public static void notifyMediaScannerScanFile(Context context,
+                                                  MediaScannerConnection.OnScanCompletedListener onScanCompletedListener,
+                                                  final Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            onScanCompletedListener.onScanCompleted(null, uri);
+        } else {
+            notifyMediaScannerScanFile(context, onScanCompletedListener, MediaLoaderUriUtils.uri2File(context, uri).getAbsolutePath());
+        }
     }
 
     public static Builder newBuilder() {
@@ -220,6 +251,7 @@ public class MediaLoaderUriUtils {
 
     /**
      * Uri to file.
+     * copy UriUtils
      *
      * @param uri The uri.
      * @return file
@@ -230,6 +262,7 @@ public class MediaLoaderUriUtils {
 
     /**
      * Uri to file.
+     * copy UriUtils
      *
      * @param uri The uri.
      * @return file
