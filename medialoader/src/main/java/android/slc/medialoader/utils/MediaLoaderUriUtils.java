@@ -287,7 +287,6 @@ public class MediaLoaderUriUtils {
                     }*/
                 }
             }
-            file = null;
             if (path.startsWith("/files_path/")) {
                 file = new File(context.getFilesDir().getAbsolutePath()
                         + path.replace("/files_path/", "/"));

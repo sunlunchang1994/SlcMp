@@ -31,8 +31,6 @@ import java.util.Locale;
  * @date 2019/11/28 9:30
  */
 public class SlcMpFilePickerUtils {
-    private final static int tailorX = 280, tailorY = 280;
-
     public static void takePhoto(Context context,
                                  ActivityResultCaller activityResultCaller,
                                  ActivityResultCallback<Uri> activityResultCallback) {
@@ -87,8 +85,8 @@ public class SlcMpFilePickerUtils {
         bundle.putString("crop", "true");
         bundle.putInt("aspectX", 1);
         bundle.putInt("aspectY", 1);
-        bundle.putInt("outputX", tailorX);
-        bundle.putInt("outputY", tailorY);
+        bundle.putInt("outputX", 256);
+        bundle.putInt("outputY", 256);
         bundle.putBoolean("scale", true);
         //这里是坑
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
