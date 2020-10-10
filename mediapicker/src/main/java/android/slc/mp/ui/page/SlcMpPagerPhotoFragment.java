@@ -47,9 +47,8 @@ public class SlcMpPagerPhotoFragment extends SlcMpPagerBaseFragment<IPhotoResult
     }
 
     @Override
-    public SlcIMpPagerDelegate<IPhotoResult, IPhotoFolder, IPhotoItem> getMediaPickerListDelegate(int mediaType,
-                                                                                                  SlcIMpDelegate slcIMpDelegate) {
-        return new SlcMpPagerPhotoDelegateImp(slcIMpDelegate) {
+    public SlcIMpPagerDelegate<IPhotoResult, IPhotoFolder, IPhotoItem> getMediaPickerListDelegate(int mediaType, SlcIMpDelegate slcIMpDelegate) {
+        SlcMpPagerPhotoDelegateImp slcMpPagerPhotoDelegateImp = new SlcMpPagerPhotoDelegateImp(slcIMpDelegate) {
             @Override
             public Object onSelectEvent(int eventCode, SelectEvent event) {
                 switch (eventCode) {
@@ -65,6 +64,8 @@ public class SlcMpPagerPhotoFragment extends SlcMpPagerBaseFragment<IPhotoResult
                 return super.onSelectEvent(eventCode, event);
             }
         };
+        slcMpPagerPhotoDelegateImp.register(this);
+        return slcMpPagerPhotoDelegateImp;
     }
 
     @Override

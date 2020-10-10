@@ -1,20 +1,28 @@
 package android.slc.slcmediapicker;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.slc.medialoader.utils.MediaLoaderUriUtils;
 import android.slc.mp.SlcMp;
 import android.slc.mp.SlcMpConfig;
+import android.slc.mp.po.i.IBaseItem;
 import android.slc.mp.utils.SlcMpFilePickerUtils;
+import android.slc.mp.utils.po.CutOutPhoto;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        register();
         findViewById(R.id.btn_look).setOnClickListener(v -> {
             SlcMp.getInstance()
                     .with(MainActivity.this)
@@ -48,22 +57,12 @@ public class MainActivity extends AppCompatActivity {
                             .loadFile(AttachmentUtils.TYPE_COMPRESSION, AttachmentUtils.TYPE_NAME_COMPRESSION, AttachmentUtils.Compression)
                             .setMaxPicker(9)
                             .build())
-                    .setActivityResultCallback(result -> {
-                        if (result != null) {
-                            /*Glide.with(MainActivity.this).load(result.get(0).getUri())
-                                    .into((ImageView) findViewById(R.id.ivTest));*/
-                            SlcMpFilePickerUtils.cutOutPhoto(MainActivity.this, MainActivity.this, result.get(0).getUri(), result1 -> {
-                                if (result1 != null) {
-                                    Glide.with(MainActivity.this).load(result1)
-                                            .into((ImageView) findViewById(R.id.ivTest));
-                                }
-                            });
-                        }
-                    })
+                    .setPickerActivityResultLauncher(pickerActivityResultLauncher)
                     .build();
         });
         findViewById(R.id.btn_takePhoto).setOnClickListener(v -> {
-            SlcMp.getInstance().takePhoto(MainActivity.this, MainActivity.this, result -> {
+            takePhotoActivityResultLauncher.launch(null);
+            /*SlcMp.getInstance().takePhoto(MainActivity.this, MainActivity.this, result -> {
                 if (result == null) {
                     return;
                 }
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                                 .into((ImageView) findViewById(R.id.ivTest));
                     }
                 });
-            });
+            });*/
         });
     }
 
@@ -97,5 +96,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private ActivityResultLauncher<Bundle> pickerActivityResultLauncher;
+    private ActivityResultLauncher<Uri> takePhotoActivityResultLauncher;
+    private ActivityResultLauncher<CutOutPhoto> cutOutPhotoActivityResultLauncher;
+
+    private void register() {
+        pickerActivityResultLauncher = SlcMp.getInstance().registerPicker(this, result -> cutOutPhotoActivityResultLauncher.launch(SlcMpFilePickerUtils.getCutOutPhoto(result.get(0).getUri())));
+        takePhotoActivityResultLauncher = SlcMp.getInstance().registerTakePhoto(this, result -> {
+            if (result == null) {
+                return;
+            }
+            cutOutPhotoActivityResultLauncher.launch(SlcMpFilePickerUtils.getCutOutPhoto(result));
+        });
+        cutOutPhotoActivityResultLauncher = SlcMp.getInstance().registerCutOutPhoto(this, result -> {
+            if (result != null) {
+                Glide.with(MainActivity.this).load(result)
+                        .into((ImageView) findViewById(R.id.ivTest));
+            }
+        });
     }
 }

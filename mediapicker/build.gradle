@@ -11,11 +11,10 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerview"
     //implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensions"
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-    api project(':medialoader')
-    if (module_mediaglide.toBoolean()) {
+    if (module_mediapicker.toBoolean()) {
         api "android.slc:medialoader:$mpMedialoader"
     } else {
-        api project(':medialoader')
+        api project(path: ':medialoader')
     }
 }
 if (module_mediapicker.toBoolean()) {

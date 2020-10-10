@@ -30,11 +30,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'com.google.android.material:material:1.2.1'
-    implementation project(path: ':mediapicker')
     implementation project(path: ':mediaglide')
-    implementation project(path: ':medialoader')
+    //implementation project(path: ':mediapicker')
+    //implementation project(path: ':medialoader')
 
     //glide
     api 'com.github.bumptech.glide:glide:4.11.0'

@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.slc.medialoader.utils.MediaLoaderUriUtils;
 import android.slc.mp.po.i.IBaseItem;
 import android.slc.mp.utils.SlcMpFilePickerUtils;
+import android.slc.mp.utils.po.CutOutPhoto;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -143,9 +145,9 @@ public class SlcMp {
      * @param activityResultCaller
      * @param activityResultCallback
      */
-    public void takePhoto(Context context, ActivityResultCaller activityResultCaller, ActivityResultCallback<Uri> activityResultCallback) {
+    /*public void takePhoto(Context context, ActivityResultCaller activityResultCaller, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.takePhoto(context, activityResultCaller, activityResultCallback);
-    }
+    }*/
 
     /**
      * 拍照
@@ -155,8 +157,20 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public void takePhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
+    /*public void takePhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.takePhoto(context, activityResultCaller, photoUri, activityResultCallback);
+    }*/
+
+    /**
+     * 注册拍照启动器
+     *
+     * @param activityResultCaller
+     * @param activityResultCallback
+     * @return
+     */
+    public ActivityResultLauncher<Uri> registerTakePhoto(ActivityResultCaller activityResultCaller,
+                                                         ActivityResultCallback<Uri> activityResultCallback) {
+        return SlcMpFilePickerUtils.registerTakePhoto(activityResultCaller, activityResultCallback);
     }
 
     /**
@@ -167,9 +181,9 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
+    /*public void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, MediaLoaderUriUtils.image2UriByInsert(context), activityResultCallback);
-    }
+    }*/
 
     /**
      * 裁剪照片
@@ -179,9 +193,9 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
+    /*public void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Uri outPutUri, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, outPutUri, activityResultCallback);
-    }
+    }*/
 
     /**
      * 裁剪照片
@@ -191,10 +205,21 @@ public class SlcMp {
      * @param photoUri
      * @param activityResultCallback
      */
-    public  void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
+    /*public void cutOutPhoto(Context context, ActivityResultCaller activityResultCaller, Uri photoUri, Bundle bundle, ActivityResultCallback<Uri> activityResultCallback) {
         SlcMpFilePickerUtils.cutOutPhoto(context, activityResultCaller, photoUri, bundle, activityResultCallback);
-    }
+    }*/
 
+    /**
+     * 参见照片
+     *
+     * @param activityResultCaller
+     * @param activityResultCallback
+     * @return
+     */
+    public ActivityResultLauncher<CutOutPhoto> registerCutOutPhoto(ActivityResultCaller activityResultCaller,
+                                                                   ActivityResultCallback<Uri> activityResultCallback) {
+        return SlcMpFilePickerUtils.registerCutOutPhoto(activityResultCaller, activityResultCallback);
+    }
 
     /**
      * 根据intent获取结果
@@ -216,7 +241,7 @@ public class SlcMp {
     public abstract static class Builder {
         SlcMpConfig mSlcMpConfig;
         int mRequestCode = Value.VALUE_REQUEST_CODE_MP_DEF;
-        ActivityResultCallback<List<IBaseItem>> mActivityResultCallback;
+        ActivityResultLauncher<Bundle> mPickerActivityResultLauncher;
 
         public Builder() {
             SlcMp.getInstance().checkInit();
@@ -246,8 +271,8 @@ public class SlcMp {
             return this;
         }
 
-        public Builder setActivityResultCallback(ActivityResultCallback<List<IBaseItem>> activityResultCallback) {
-            this.mActivityResultCallback = activityResultCallback;
+        public Builder setPickerActivityResultLauncher(ActivityResultLauncher<Bundle> pickerActivityResultLauncher) {
+            this.mPickerActivityResultLauncher = pickerActivityResultLauncher;
             return this;
         }
 
@@ -275,7 +300,10 @@ public class SlcMp {
         @Override
         public void build() {
             super.build();
-            if (mActivity != null) {
+            if (mPickerActivityResultLauncher != null) {
+                mPickerActivityResultLauncher.launch(SlcMp.getInstance().optMpConfig().getBundle());
+            }
+            /*if (mActivity != null) {
                 mActivity.registerForActivityResult(new ActivityResultContract<Bundle, List<IBaseItem>>() {
                     @NonNull
                     @Override
@@ -293,10 +321,7 @@ public class SlcMp {
                         return null;
                     }
                 }, mActivityResultCallback).launch(SlcMp.getInstance().optMpConfig().getBundle());
-                /*Intent intent = new Intent(mActivity, SlcMp.getInstance().optMpConfig().getTargetUi());
-                intent.putExtras(SlcMp.getInstance().optMpConfig().getBundle());
-                mActivity.startActivityForResult(intent, mRequestCode);*/
-            }
+            }*/
         }
     }
 
@@ -310,7 +335,10 @@ public class SlcMp {
         @Override
         public void build() {
             super.build();
-            if (mFragment != null) {
+            if (mPickerActivityResultLauncher != null) {
+                mPickerActivityResultLauncher.launch(SlcMp.getInstance().optMpConfig().getBundle());
+            }
+            /*if (mFragment != null) {
                 mFragment.registerForActivityResult(new ActivityResultContract<Bundle, List<IBaseItem>>() {
                     @NonNull
                     @Override
@@ -328,11 +356,28 @@ public class SlcMp {
                         return null;
                     }
                 }, mActivityResultCallback).launch(SlcMp.getInstance().optMpConfig().getBundle());
-                /*Intent intent = new Intent(mFragment.getContext(), SlcMp.getInstance().optMpConfig().getTargetUi());
-                intent.putExtras(SlcMp.getInstance().optMpConfig().getBundle());
-                mFragment.startActivityForResult(intent, mRequestCode);*/
-            }
+            }*/
         }
+    }
+
+    public ActivityResultLauncher<Bundle> registerPicker(ActivityResultCaller activityResultCaller, ActivityResultCallback<List<IBaseItem>> activityResultCallback) {
+        return activityResultCaller.registerForActivityResult(new ActivityResultContract<Bundle, List<IBaseItem>>() {
+            @NonNull
+            @Override
+            public Intent createIntent(@NonNull Context context, Bundle input) {
+                Intent intent = new Intent(context, SlcMp.getInstance().optMpConfig().getTargetUi());
+                intent.putExtras(input);
+                return intent;
+            }
+
+            @Override
+            public List<IBaseItem> parseResult(int resultCode, @Nullable Intent intent) {
+                if (resultCode == Activity.RESULT_OK && intent != null) {
+                    return (List<IBaseItem>) intent.getSerializableExtra(Key.KEY_RESULT_LIST);
+                }
+                return null;
+            }
+        }, activityResultCallback);
     }
 
     /**
