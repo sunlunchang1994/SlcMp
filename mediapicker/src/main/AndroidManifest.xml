@@ -4,20 +4,20 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application>
         <activity
-            android:name="android.slc.mp.ui.activity.SlcMpActivity"
+            android:name=".ui.activity.SlcMpActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density|fontScale"
             android:theme="@style/SlcMediaPickerAppTheme.NoActionBar" />
         <activity
-            android:name="android.slc.mp.ui.activity.SlcMpBrowsePhotoActivity"
+            android:name=".ui.activity.SlcMpBrowsePhotoActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density|fontScale"
             android:theme="@style/SlcMediaPickerAppTheme.NoActionBar" />
         <activity
-            android:name="android.slc.mp.ui.activity.SlcMpBrowseVideoActivity"
+            android:name=".ui.activity.SlcMpBrowseVideoActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density|fontScale"
             android:theme="@style/SlcMediaPickerAppTheme.NoActionBar" />
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".SlcMpFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
