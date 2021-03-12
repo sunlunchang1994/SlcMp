@@ -14,7 +14,7 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'https://dl.bintray.com/sunlunchang/code' }
+        maven { url 'https://dl.bintray.com/sunlunchang/media' }
         maven { url "https://jitpack.io" }
         maven { url "https://maven.aliyun.com/nexus/content/repositories/google" }
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
@@ -40,11 +40,13 @@ ext {
     androidXConstraintlayout = '2.0.4'
     googleAndroidMaterial = '1.4.0-alpha01'
 
-    lifecycleExtensions = '2.1.0'
-    mpMedialoader = '0.1.1'
-    mpMedialoaderPublish = '0.1.1'
-    mpMediapicker = '0.1.3'
-    mpMediapickerPublish = '0.1.3'
+    //lifecycleExtensions = '2.1.0'
+    mpMedialoader = '0.1.2'
+    mpMedialoaderPublish = '0.1.2'
+
+    mpMediapicker = '0.1.4'
+    mpMediapickerPublish = '0.1.4'
+
     mpMediaglide = '0.1.3'
-    mpMediaglidePublish = '0.1.3'
+    mpMediaglidePublish = '0.1.4'
 }
