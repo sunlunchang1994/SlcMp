@@ -1,23 +1,22 @@
 apply from: "${project.rootDir}/code_module_config.gradle"
-if (module_mediaglide.toBoolean()) {
-    apply plugin: 'maven'
-    apply plugin: 'com.novoda.bintray-release'
-}
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.sunlunchang1994'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //glide
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'jp.wasabeef:glide-transformations:4.0.1'
-    if (module_mediaglide.toBoolean()) {
+    api project(path: ':mediapicker')
+    /*if (module_mediaglide.toBoolean()) {
         api "android.slc:mediapicker:$mpMediapicker"
     } else {
         api project(path: ':mediapicker')
-    }
+    }*/
 }
 
-if (module_mediaglide.toBoolean()) {
+/*if (module_mediaglide.toBoolean()) {
     publish {
         repoName = 'media'
         userOrg = "sunlunchang"
@@ -27,4 +26,4 @@ if (module_mediaglide.toBoolean()) {
         desc = 'Develop Android apps quickly'
         website = "https://github.com/sunlunchang1994/$rootProject.name"
     }
-}
+}*/

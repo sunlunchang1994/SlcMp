@@ -1,20 +1,19 @@
 apply from: "${project.rootDir}/code_module_config.gradle"
-if (module_mediapicker.toBoolean()) {
-    apply plugin: 'maven'
-    apply plugin: 'com.novoda.bintray-release'
-}
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.sunlunchang1994'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-    if (module_mediapicker.toBoolean()) {
+    api project(path: ':medialoader')
+    /*if (module_mediapicker.toBoolean()) {
         api "android.slc:medialoader:$mpMedialoader"
     } else {
         api project(path: ':medialoader')
-    }
+    }*/
 }
 
-if (module_mediapicker.toBoolean()) {
+/*if (module_mediapicker.toBoolean()) {
     publish {
         repoName = 'media'
         userOrg = "sunlunchang"
@@ -24,4 +23,4 @@ if (module_mediapicker.toBoolean()) {
         desc = 'Develop Android apps quickly'
         website = "https://github.com/sunlunchang1994/$rootProject.name"
     }
-}
+}*/

@@ -2,4 +2,4 @@ include ':mediapicker'
 include ':medialoader'
 include ':mediaglide'
 include ':app'
-rootProject.name = "SlcMp"
+rootProject.name = "slc_mp"
